@@ -13,8 +13,6 @@ public class BST<E extends Comparable<E>> {
             parent = new TreeNode<E>(value, null, null);
             return;
         }
-        TreeNode<E> node = parent;
-        TreeNode<E> newV = new TreeNode<E>(value, null, null);
         addRec(parent, value);
     }
 
