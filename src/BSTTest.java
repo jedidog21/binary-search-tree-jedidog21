@@ -110,8 +110,8 @@ class BSTTest {
         bst.add(30);
         bst.add(300);
         bst.add(150);
-        bst.delete(300);
-        assertEquals("[10, 20, 30, 100, 150, 200]", bst.printInorder());
+        bst.delete(200);
+        assertEquals("[10, 20, 30, 100, 150, 300]", bst.printInorder());
     }
 
     @org.junit.jupiter.api.Test

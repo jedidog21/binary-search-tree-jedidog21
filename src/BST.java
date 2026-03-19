@@ -80,7 +80,10 @@ public class BST<E extends Comparable<E>> {
      * @throws NoSuchElementException if the element doesn't exist in BST
      */
     public E delete(E value) throws NoSuchElementException{
-        return deleteRec(value, parent);
+        if (!containRec(parent, value)) {
+            throw new NoSuchElementException();
+        }
+        return deleteRec(value, parent).getValue();
     }
 
     /**
@@ -88,6 +91,54 @@ public class BST<E extends Comparable<E>> {
      */
     public void clearTree(){parent = new TreeNode<>(null, null, null);}
 
+    /**
+     * @return the minimum value in the tree
+     */
+    public E findMin(){
+        TreeNode<E> min = parent;
+        while (min.getLeftChild() != null){
+            min = min.getLeftChild();
+        }
+        return min.getValue();
+    }
+
+    /**
+     * @return the maximum value in the tree
+     */
+    public E findMax(){
+        TreeNode<E> max = parent;
+        while (max.getRightChild() != null){
+            max = max.getRightChild();
+        }
+        return max.getValue();
+    }
+
+    /**
+     * @return true or false using balancedRec
+     */
+    public boolean isBalanced(){
+        return balancedRec(parent);
+    }
+
+    /**
+     * @param root is the node to start at
+     * @return true if the difference of the height of the tree is either 1 or 0
+     */
+    private boolean balancedRec(TreeNode<E> root){
+        if (root.getRightChild() == null && root.getLeftChild() == null){
+            return true;
+        }
+        if (root.getLeftChild() != null) {
+            if (!balancedRec(root.getLeftChild()))
+                return false;
+        }
+        if (root.getRightChild() != null) {
+            if (balancedRec(root.getRightChild()))
+                return false;
+        }
+        int difference = (int) Math.pow(countHeight(root.getLeftChild()) - countHeight(root.getRightChild()),2);
+        return difference == 1 || difference == 0;
+    }
     /**
      * @param root is the node to start at
      * @param value is the value added
@@ -121,26 +172,18 @@ public class BST<E extends Comparable<E>> {
     private boolean containRec(TreeNode<E> node, E value){
         if (node == null)
             return false;
-
-        TreeNode<E> left = node.getLeftChild();
-        TreeNode<E> right = node.getRightChild();
+        boolean re = false;
         TreeNode<E> v = new TreeNode<>(value, null, null);
-        int compareL = -100;
-        int compareR = -100;
-        if (node.getLeftChild() != null)
-            compareL = left.compareTo(v);
-        if (node.getRightChild() != null)
-            compareR = right.compareTo(v);
         int compare = node.compareTo(v);
-        if (compare == 0 || compareL == 0 || compareR == 0)
+        if (compare == 0)
             return true;
-        else if (compare > 0 && node.getLeftChild() != null){
-            return containRec(node.getLeftChild(), value);
-        }
-        else if (compare < 0 && node.getRightChild() != null){
-            return containRec(node.getRightChild(), value);
-        }
-        return false;
+        if (node.getLeftChild() != null)
+            re = containRec(node.getLeftChild(), value);
+        if (re)
+            return re;
+        if (node.getRightChild() != null)
+            re = containRec(node.getRightChild(), value);
+        return re;
     }
 
     /**
@@ -227,37 +270,27 @@ public class BST<E extends Comparable<E>> {
      * @return the value delete
      * @throws NoSuchElementException if value is not in BST
      */
-    private E deleteRec(E value, TreeNode<E> node) throws NoSuchElementException {
-        if (node == null || !contains(value))
-            throw new NoSuchElementException();
-        TreeNode<E> left = node.getLeftChild();
-        TreeNode<E> right = node.getRightChild();
-        TreeNode<E> v = new TreeNode<>(value, null, null);
-        int compareL = left.compareTo(v);
-        int compareR = right.compareTo(v);
-        int compare = node.compareTo(v);
-        if (compareL == 0){
-            node.setLeftChild(left.getLeftChild());
-            return value;
+    private TreeNode<E> deleteRec(E value, TreeNode<E> node){
+        int compare = node.compareTo(new TreeNode<>(value, null, null));
+        if (compare > 0){
+            node.setLeftChild(deleteRec(value, node.getLeftChild()));
         }
-        else if (compareR == 0){
-            node.setRightChild(right.getRightChild());
-            return value;
+        else if (compare < 0){
+            node.setRightChild(deleteRec(value, node.getRightChild()));
         }
-        else if (compare > 0){
-            return deleteRec(value, node.getLeftChild());
-        }
-
-        else if (compare < 0)
-            return deleteRec(value, node.getRightChild());
         else {
-            String a = this.printIn(right);
-            String[] b = a.split(" ");
-            for (String string : b) {
-                this.addRec(left, (E) string);
+            if (node.getLeftChild() == null) return node.getRightChild();
+            if (node.getRightChild() == null) return node.getLeftChild();
+
+            TreeNode<E> curr = node.getRightChild();
+            while (curr.getLeftChild() != null){
+                curr = curr.getLeftChild();
             }
-            parent = left;
-            return value;
+            if (node.getLeftChild() != null){
+                curr.setLeftChild(node.getLeftChild());
+            }
+            return curr;
         }
+        return node;
     }
 }
