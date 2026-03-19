@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 
 public class Main {
     public static BST<Integer> bst = new BST<>();
-
     public static void main(String[] args) {
         Scanner scan = new Scanner(System.in);
         String in = "";

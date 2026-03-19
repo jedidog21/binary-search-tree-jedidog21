@@ -132,6 +132,7 @@ public class BST<E extends Comparable<E>> {
             if (!balancedRec(root.getLeftChild()))
                 return false;
         }
+
         if (root.getRightChild() != null) {
             if (balancedRec(root.getRightChild()))
                 return false;
